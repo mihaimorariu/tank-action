@@ -1,5 +1,5 @@
 program TANK_action;
-uses crt,graph,umouse,dos;
+uses crt,ptcgraph,mouse,dos;
 label yog,repifwin;
 type vec=array[1..8] of string;
      sjds=(s,j,d,st);
@@ -166,11 +166,13 @@ begin
                              outtextxy(x,y+20*p,v[p+1]);
                         end;
      c:=#14;ok:=false;
-     mouseinit;mouseshow;
+     InitMouse;ShowMouse;
      while (c<>#13) and not ok do begin
                   modif:=false;
+                  xm:=GetMouseX;
+                  ym:=GetMouseY;
+                  buton:=GetMouseButtons;
                   xa:=xm;ya:=ym;
-                  mousedata(buton,xm,ym);
                    if (xa<>xm) or (ya<>ym) then begin
                   for p:=0 to n-1 do begin
                      if (xm>=x) and (xm<=x+80) and (ym>=y+20*p-5) and (ym<=y+20*p+10)
@@ -199,13 +201,13 @@ begin
 
                                end;{if keypressed}
                   if modif then begin
-                  mousehide;
+                  HideMouse;
                   for p:=0 to n-1 do begin
                            setcolor(black);
                            if p+1=rmeniu then setcolor(lightred);
                            outtextxy(x,y+20*p,v[p+1]);
                                      end;
-                  mouseshow;
+                  ShowMouse;
                   sound(220);delay(10);nosound;
                            end; {if modif}
       end;
@@ -213,7 +215,7 @@ begin
                      sound(565-50*p);delay(15);
                      nosound;
                      end;
-      mousehide;
+      HideMouse;
 
 end;
 function potsatrag(n:integer):boolean;

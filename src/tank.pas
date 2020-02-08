@@ -23,6 +23,169 @@ var
    s100,hi,mi,si,hh,mm,ss:word;
    poate,winner,ambelit:boolean;
    art:articol;
+procedure plimbareprinmeniu(n:integer;v:vec;x,y:integer);
+var
+     p,rant:byte;
+     c:char;
+     modif,selectat,ok:boolean;
+     xm,ym,xa,ya:integer;
+     buton:word;
+begin
+     settextstyle(0,0,0);
+     rmeniu:=1;
+     for p:=0 to n-1 do begin
+                             setcolor(black);
+                             if p=0 then setcolor(lightred);
+                             outtextxy(x,y+20*p,v[p+1]);
+                        end;
+     c:=#14;ok:=false;
+     initmouse;
+     showmouse;
+     while (c<>#13) and not ok do begin
+                  modif:=false;
+                  xm:=getmousex;
+                  ym:=getmousey;
+
+                  setcolor(white);
+                  buton:=getmousebuttons;
+                  xa:=xm;ya:=ym;
+                  if (xa<>xm) or (ya<>ym) then begin
+                  for p:=0 to n-1 do begin
+                     if (xm>=x) and (xm<=x+80) and (ym>=y+20*p-5) and (ym<=y+20*p+10)
+                      then begin rant:=rmeniu;rmeniu:=p+1;if rant<>rmeniu then modif:=true;
+                      selectat:=true;break;end
+                      else selectat:=false;
+                                      end;
+                                               end;
+                  if (selectat=true) and (buton=mouseleftbutton) then ok:=true;
+                  if keypressed then begin
+                  modif:=true;
+                  c:=readkey;
+                  if c=#0 then begin
+                  c:=readkey;
+                          case c of
+                            #80:begin
+                                    rmeniu:=rmeniu+1;
+                                    if rmeniu=n+1 then rmeniu:=1;
+                                    end;
+                            #72:begin
+                                     rmeniu:=rmeniu-1;
+                                     if rmeniu=0 then rmeniu:=n;
+                                     end;
+                              end;
+                                 end;
+
+                               end;{if keypressed}
+                  if modif then begin
+                  hidemouse;
+                  for p:=0 to n-1 do begin
+                           setcolor(black);
+                           if p+1=rmeniu then setcolor(lightred);
+                           outtextxy(x,y+20*p,v[p+1]);
+                                     end;
+                  showmouse;
+                  sound(220);delay(10);nosound;
+                           end; {if modif}
+      end;
+      for p:=1 to 10 do begin
+                     sound(565-50*p);delay(15);
+                     nosound;
+                     end;
+      hidemouse;
+
+end;
+procedure start;
+var
+   i,p,r:integer;
+   t:real;
+begin
+     setbkcolor(black);cleardevice;
+     for p:=0 to 12 do begin
+     for i:=0 to 16 do begin
+                 r:=random(4);
+                 if r=0 then putimage(40*i,40*p,sus1^,xorput);
+                 if r=1 then putimage(40*i,40*p,dr1^,xorput);
+                 if r=2 then putimage(40*i,40*p,jos2^,xorput);
+                 if r=3 then putimage(40*i,40*p,st2^,xorput);
+                 end;
+                     end;
+                 p:=0;
+                 repeat
+                 p:=p+2;t:=0;i:=0;
+                 repeat
+                 t:=t+1/30;i:=i+2;
+                 if p mod 10=0 then begin
+                 putpixel(-20+round(10*sin(t))+p,i,lightred);
+                 putpixel(660+round(10*sin(t))-p,i,lightred);
+                 end
+                 else begin
+                 putpixel(-20+round(10*sin(t))+p,i,red);
+                 putpixel(660+round(10*sin(t))-p,i,red);
+                       end;
+                 until i=480;
+                 until p>350;
+                 setcolor(black);
+                 settextstyle(10,0,8);
+                 for i:=1 to 12 do begin
+                 if i=3 then setcolor(blue);
+                 if i=5 then setcolor(lightblue);
+                 if i=7 then setcolor(cyan);
+                 if i=9 then setcolor(lightcyan);
+                 if i=11 then setcolor(white);
+                 outtextxy(150-i,220+i,'TANK');
+                 delay(10);
+                                  end;
+                 settextstyle(0,0,3);
+                 outtextxy(340,400,'a c t i o n');
+                 {sigla(30,360);}
+                 for i:=1 to 2 do begin
+                 r:=40;if i=2 then r:=430;
+                                   end;
+                 for i:=1 to 200 do begin
+                     setcolor(black);line(200+i,50,200+i,210);
+                     setcolor(yellow);line(190+i,60,190+i,220);
+                     delay(5);
+                     end;
+                 setlinestyle(0,0,3);setcolor(lightgray);
+                 line(195,65,195,215);
+                 line(195,65,385,65);
+                 setcolor(darkgray);
+                 line(195,215,385,215);
+                 line(385,215,385,65);
+                 setcolor(black);settextstyle(0,0,2);
+                 outtextxy(245,80,'MENIU');
+                 men[1]:='Start';men[2]:='Readme';men[3]:='Credits';
+                 men[4]:='Hall of fame';men[5]:='Exit';
+                 plimbareprinmeniu(5,men,210,120);
+end;
+procedure afisarehall;
+var
+   c:integer;
+   s1:string;
+begin
+     cleardevice;
+     settextstyle(8,0,4);setcolor(blue);
+     for c:=1 to 5 do outtextxy(150-2*c,5+2*c,'THE HALL OF FAME');
+     setcolor(lightblue);
+     outtextxy(140,15,'THE HALL OF FAME');
+     settextstyle(6,0,3);
+     outtextxy(50,90,'These are the Captains that entered in history :');
+     reset(fis);
+     settextstyle(0,0,0);
+     for c:=1 to filesize(fis) do begin
+                  read(fis,art);
+                  with art do begin
+                      outtextxy(10,140+30*c,nume);
+                      str(h,s1);outtextxy(300,140+30*c,s1);outtextxy(310,140+30*c,':');
+                      str(m,s1);outtextxy(320,140+30*c,s1);outtextxy(330,140+30*c,':');
+                      str(s,s1);outtextxy(340,140+30*c,s1);
+                      end;
+                  end;
+     close(fis);
+     repeat until keypressed;
+     readkey;
+end;
+
 procedure initpic;
 var
    size1,i:word;
@@ -50,14 +213,14 @@ for i:=1 to 2 do begin
      putpixel(25,31,white);
      putpixel(26,31,white);
      putpixel(25,32,white);
-     size1:=ImageSize(14,14,46,51);
+     size1:=imagesize(14,14,46,51);
 if i=1 then begin
      getmem(sus1,size1);
-     GetImage(14,14,46,51,sus1^);
+     getimage(14,14,46,51,sus1^);
           end
 else begin
      getmem(sus2,size1);
-     GetImage(14,14,46,51,sus2^);
+     getimage(14,14,46,51,sus2^);
       end;
      cleardevice;
      setcolor(lcol);       {jos}
@@ -73,14 +236,14 @@ else begin
      putpixel(25,31,white);
      putpixel(26,31,white);
      putpixel(25,32,white);
-     size1:=ImageSize(14,19,46,56);
+     size1:=imagesize(14,19,46,56);
 if i=1 then begin
      getmem(jos1,size1);
-     GetImage(14,19,46,56,jos1^);
+     getimage(14,19,46,56,jos1^);
             end
 else begin
      getmem(jos2,size1);
-     GetImage(14,19,46,56,jos2^);
+     getimage(14,19,46,56,jos2^);
      end;
      cleardevice;
      setcolor(lcol);          {dr.}
@@ -151,88 +314,26 @@ end; {tancuri}
     getimage(13,13,31,31,bmb^);
     cleardevice;
 end;
-procedure plimbareprinmeniu(n:integer;v:vec;x,y:integer);
-var
-     p,rant:byte;
-     c:char;
-     modif,selectat,ok:boolean;
-     buton,xm,ym,xa,ya:integer;
-begin
-     settextstyle(0,0,0);
-     rmeniu:=1;
-     for p:=0 to n-1 do begin
-                             setcolor(black);
-                             if p=0 then setcolor(lightred);
-                             outtextxy(x,y+20*p,v[p+1]);
-                        end;
-     c:=#14;ok:=false;
-     InitMouse;ShowMouse;
-     while (c<>#13) and not ok do begin
-                  modif:=false;
-                  xm:=GetMouseX;
-                  ym:=GetMouseY;
-                  buton:=GetMouseButtons;
-                  xa:=xm;ya:=ym;
-                   if (xa<>xm) or (ya<>ym) then begin
-                  for p:=0 to n-1 do begin
-                     if (xm>=x) and (xm<=x+80) and (ym>=y+20*p-5) and (ym<=y+20*p+10)
-                      then begin rant:=rmeniu;rmeniu:=p+1;if rant<>rmeniu then modif:=true;
-                      selectat:=true;break;end
-                      else selectat:=false;
-                                      end;
-                                               end;
-                  if (selectat=true) and (buton=1) then ok:=true;
-                  if keypressed then begin
-                  modif:=true;
-                  c:=readkey;
-                  if c=#0 then begin
-                  c:=readkey;
-                          case c of
-                            #80:begin
-                                    rmeniu:=rmeniu+1;
-                                    if rmeniu=n+1 then rmeniu:=1;
-                                    end;
-                            #72:begin
-                                     rmeniu:=rmeniu-1;
-                                     if rmeniu=0 then rmeniu:=n;
-                                     end;
-                              end;
-                                 end;
-
-                               end;{if keypressed}
-                  if modif then begin
-                  HideMouse;
-                  for p:=0 to n-1 do begin
-                           setcolor(black);
-                           if p+1=rmeniu then setcolor(lightred);
-                           outtextxy(x,y+20*p,v[p+1]);
-                                     end;
-                  ShowMouse;
-                  sound(220);delay(10);nosound;
-                           end; {if modif}
-      end;
-      for p:=1 to 10 do begin
-                     sound(565-50*p);delay(15);
-                     nosound;
-                     end;
-      HideMouse;
-
-end;
 function potsatrag(n:integer):boolean;
 var
    pot:boolean;
-   c1:integer;
+   c1,p:integer;
+   art1,art2:articol;
+   nm:string[20];
+   modif:boolean;
+   h1,h2,m1,m2,s1,s2:word;
+   lit:char;
+   x1:integer;
 begin
      pot:=false;
      case adv[n,3] of
      0:begin
-            if (adv[n,1]>=eu[1]-20) and (adv[n,1]<=eu[1]+20)
-            and (adv[n,2]>eu[2]+35) then pot:=true;
-            for c1:=1 to np do if (adv[n,1]>coord[c1,1]-35) and (adv[n,1]eu[2]+30) and (coord[c1,2]+50=eu[1]-20) and (adv[n,1]<=eu[1]+20)
-            and (adv[n,2]+35coord[c1,1]-35) and (adv[n,1]adv[n,2]+30) and (coord[c1,2]+50=eu[2]-20) and (adv[n,2]<=eu[2]+20)
-            and (adv[n,1]+35coord[c1,2]-35) and (adv[n,2]adv[n,1]+30) and (coord[c1,1]+50=eu[2]-20) and (adv[n,2]<=eu[2]+20)
+            if (adv[n,1]>=eu[1]-20) and (adv[n,1]<=eu[1]+20) and (adv[n,2]>eu[2]+35) then pot:=true;
+            for c1:=1 to np do if (adv[n,1]>coord[c1,1]-35) and (adv[n,1]<=eu[2]+30) and (coord[c1,2]+50=eu[1]-20) and (adv[n,1]<=eu[1]+20)
+            and (adv[n,2]+35>coord[c1,1]-35) and (adv[n,1]<adv[n,2]+30) and (coord[c1,2]+50=eu[2]-20) and (adv[n,2]<=eu[2]+20)
+            and (adv[n,1]+35>coord[c1,2]-35) and (adv[n,2]<adv[n,1]+30) and (coord[c1,1]+50=eu[2]-20) and (adv[n,2]<=eu[2]+20)
             and (adv[n,1]>eu[1]+35) then pot:=true;
-            for c1:=1 to np do if (adv[n,2]>coord[c1,2]-35) and (adv[n,2]eu[1]+30) and (coord[c1,1]+50#13 do begin
+            for c1:=1 to np do if (adv[n,2]>coord[c1,2]-35) and (adv[n,2]<=eu[1]+30) and (coord[c1,1]+50=13) then begin
                         lit:=readkey;
                         if lit=#13 then break;
                         if lit=#8 then begin
@@ -245,161 +346,71 @@ begin
                         nm:=nm+lit;
                         outtextxy(x1,270,lit);
                         x1:=x1+18;
-                        end;
-      with art do begin
-                  nume:=nm;
-                  h:=hh;m:=mm;s:=ss;
-                  end;
-      outtextxy(100,100,nm);
-      reset(fis);
-      seek(fis,filesize(fis));
-      write(fis,art);
-      modif:=true;
-      while modif do begin
-      modif:=false;
-      for p:=0 to filesize(fis)-2 do begin
-               seek(fis,p);
-               read(fis,art);h1:=art.h;
-               seek(fis,p+1);
-               read(fis,art);h2:=art.h;
-               if (h1>h2) then begin
-                             modif:=true;
-                             seek(fis,p);read(fis,art1);
-                             seek(fis,p);write(fis,art);
-                             seek(fis,p+1);write(fis,art1);
-                             end;
-                                        end;
-               end;
-      modif:=true;
-      while modif do begin
-      modif:=false;
-      for p:=0 to filesize(fis)-2 do begin
-               seek(fis,p);
-               read(fis,art);h1:=art.h;m1:=art.m;
-               seek(fis,p+1);
-               read(fis,art);h2:=art.h;m2:=art.m;
-               if (m1>m2) and (h1=h2) then begin
-                             modif:=true;
-                             seek(fis,p);read(fis,art1);
-                             seek(fis,p);write(fis,art);
-                             seek(fis,p+1);write(fis,art1);
-                             end;
-                                        end;
-                    end;
-       modif:=true;
-       while modif do begin
-       modif:=false;
-       for p:=0 to filesize(fis)-2 do begin
-               seek(fis,p);
-               read(fis,art);h1:=art.h;m1:=art.m;s1:=art.s;
-               seek(fis,p+1);
-               read(fis,art);h2:=art.h;m2:=art.m;s2:=art.s;
-               if (s1>s2) and (h1=h2) and (m1=m2) then begin
-                             modif:=true;
-                             seek(fis,p);read(fis,art1);
-                             seek(fis,p);write(fis,art);
-                             seek(fis,p+1);write(fis,art1);
-                             end;
-                                        end;
-               end;
-      if filesize(fis)>10 then begin
-                          seek(fis,10);
-                          truncate(fis);
-                          end;
-      close(fis);
-end;
-procedure afisarehall;
-var
-   c:integer;
-   s1:string;
-begin
-     cleardevice;
-     settextstyle(8,0,4);setcolor(blue);
-     for c:=1 to 5 do outtextxy(150-2*c,5+2*c,'THE HALL OF FAME');
-     setcolor(lightblue);
-     outtextxy(140,15,'THE HALL OF FAME');
-     settextstyle(6,0,3);
-     outtextxy(50,90,'These are the Captains that entered in history :');
-     reset(fis);
-     settextstyle(0,0,0);
-     for c:=1 to filesize(fis) do begin
-                  read(fis,art);
-                  with art do begin
-                      outtextxy(10,140+30*c,nume);
-                      str(h,s1);outtextxy(300,140+30*c,s1);outtextxy(310,140+30*c,':');
-                      str(m,s1);outtextxy(320,140+30*c,s1);outtextxy(330,140+30*c,':');
-                      str(s,s1);outtextxy(340,140+30*c,s1);
-                      end;
-                  end;
-     close(fis);
-     repeat until keypressed;
-     readkey;
-end;
-procedure start;
-var
-   i,p,r:integer;
-   t:real;
-begin
-     setbkcolor(black);cleardevice;
-     for p:=0 to 12 do begin
-     for i:=0 to 16 do begin
-                 r:=random(4);
-                 if r=0 then putimage(40*i,40*p,sus1^,xorput);
-                 if r=1 then putimage(40*i,40*p,dr1^,xorput);
-                 if r=2 then putimage(40*i,40*p,jos2^,xorput);
-                 if r=3 then putimage(40*i,40*p,st2^,xorput);
+            end;
+       end;
+     end;
+     with art do begin
+                 nume:=nm;
+                 h:=hh;m:=mm;s:=ss;
                  end;
-                     end;
-                 p:=0;
-                 repeat
-                 p:=p+2;t:=0;i:=0;
-                 repeat
-                 t:=t+1/30;i:=i+2;
-                 if p mod 10=0 then begin
-                 putpixel(-20+round(10*sin(t))+p,i,lightred);
-                 putpixel(660+round(10*sin(t))-p,i,lightred);
-                 end
-                 else begin
-                 putpixel(-20+round(10*sin(t))+p,i,red);
-                 putpixel(660+round(10*sin(t))-p,i,red);
-                       end;
-                 until i=480;
-                 until p>350;
-                 setcolor(black);
-                 settextstyle(10,0,8);
-                 for i:=1 to 12 do begin
-                 if i=3 then setcolor(blue);
-                 if i=5 then setcolor(lightblue);
-                 if i=7 then setcolor(cyan);
-                 if i=9 then setcolor(lightcyan);
-                 if i=11 then setcolor(white);
-                 outtextxy(150-i,220+i,'TANK');
-                 delay(10);
-                                  end;
-                 settextstyle(0,0,3);
-                 outtextxy(340,400,'a c t i o n');
-                 sigla(30,360);
-                 for i:=1 to 2 do begin
-                 r:=40;if i=2 then r:=430;
-                                   end;
-                 for i:=1 to 200 do begin
-                     setcolor(black);line(200+i,50,200+i,210);
-                     setcolor(yellow);line(190+i,60,190+i,220);
-                     delay(5);
-                     end;
-                 setlinestyle(0,0,3);setcolor(lightgray);
-                 line(195,65,195,215);
-                 line(195,65,385,65);
-                 setcolor(darkgray);
-                 line(195,215,385,215);
-                 line(385,215,385,65);
-                 setcolor(black);settextstyle(0,0,2);
-                 outtextxy(245,80,'MENIU');
-                 men[1]:='Start';men[2]:='Readme';men[3]:='Credits';
-                 men[4]:='Hall of fame';men[5]:='Exit';
-                 plimbareprinmeniu(5,men,210,120);
+     outtextxy(100,100,nm);
+     reset(fis);
+     seek(fis,filesize(fis));
+     write(fis,art);
+     modif:=true;
+     while modif do begin
+     modif:=false;
+     for p:=0 to filesize(fis)-2 do begin
+              seek(fis,p);
+              read(fis,art);h1:=art.h;
+              seek(fis,p+1);
+              read(fis,art);h2:=art.h;
+              if (h1>h2) then begin
+                            modif:=true;
+                            seek(fis,p);read(fis,art1);
+                            seek(fis,p);write(fis,art);
+                            seek(fis,p+1);write(fis,art1);
+                            end;
+                                       end;
+              end;
+     modif:=true;
+     while modif do begin
+     modif:=false;
+     for p:=0 to filesize(fis)-2 do begin
+              seek(fis,p);
+              read(fis,art);h1:=art.h;m1:=art.m;
+              seek(fis,p+1);
+              read(fis,art);h2:=art.h;m2:=art.m;
+              if (m1>m2) and (h1=h2) then begin
+                            modif:=true;
+                            seek(fis,p);read(fis,art1);
+                            seek(fis,p);write(fis,art);
+                            seek(fis,p+1);write(fis,art1);
+                            end;
+                                       end;
+                   end;
+      modif:=true;
+      while modif do begin
+      modif:=false;
+      for p:=0 to filesize(fis)-2 do begin
+              seek(fis,p);
+              read(fis,art);h1:=art.h;m1:=art.m;s1:=art.s;
+              seek(fis,p+1);
+              read(fis,art);h2:=art.h;m2:=art.m;s2:=art.s;
+              if (s1>s2) and (h1=h2) and (m1=m2) then begin
+                            modif:=true;
+                            seek(fis,p);read(fis,art1);
+                            seek(fis,p);write(fis,art);
+                            seek(fis,p+1);write(fis,art1);
+                            end;
+                                       end;
+              end;
+     if filesize(fis)>10 then begin
+                         seek(fis,10);
+                         truncate(fis);
+                         end;
+     close(fis);
 end;
-
 procedure pixeli;
 var d,xprim,yprim:longint;
 begin
@@ -609,29 +620,31 @@ end;
 procedure trage;
 var
    pot:boolean;
-   c1,n,care:integer;
+   c1,c2,n,m,care:integer;
 begin
      pot:=false;
      case misc of
      s:begin
          for n:=1 to nadv do begin
             if adv[n,5]=0 then continue;
-            if (eu[1]>=adv[n,1]-20) and (eu[1]<=adv[n,1]+20)
-            and (eu[2]>adv[n,2]+35) then pot:=true;
-            for c1:=1 to np do if (eu[1]>coord[c1,1]-35) and (eu[1]adv[n,2]+30) and (coord[c1,2]+50=adv[n,1]-20) and (eu[1]<=adv[n,1]+20)
-            and (eu[2]+35coord[c1,1]-35) and (eu[1]eu[2]+30) and (coord[c1,2]+50=adv[n,2]-20) and (eu[2]<=adv[n,2]+20)
-            and (eu[1]+35coord[c1,2]-35) and (eu[2]eu[1]+30) and (coord[c1,1]+50=adv[n,2]-20) and (eu[2]<=adv[n,2]+20)
+            if (eu[1]>=adv[n,1]-20) and (eu[1]<=adv[n,1]+20) and (eu[2]>adv[n,2]+35) then pot:=true;
+            for c1:=1 to np do if (eu[1]>coord[c1,1]-35) and (eu[1]<=adv[n,2]+30) and (coord[c1,2]+50=adv[n,1]-20) and (eu[1]<=adv[n,1]+20)
+            and (eu[2]+35>coord[c1,1]-35) and (eu[1]<=eu[2]+30) and (coord[c1,2]+50=adv[n,2]-20) and (eu[2]<=adv[n,2]+20)
+            and (eu[1]+35>coord[c1,2]-35) and (eu[2]<=eu[1]+30) and (coord[c1,1]+50=adv[n,2]-20) and (eu[2]<=adv[n,2]+20)
             and (eu[1]>adv[n,1]+35) then pot:=true;
-            for c1:=1 to np do if (eu[2]>coord[c1,2]-35) and (eu[2]adv[n,1]+30) and (coord[c1,1]+5010 then begin
-                   for c1:=5 downto 1 do begin sound(700-100*c1);delay(2);nosound;end;
+            for c1:=1 to np do if (eu[2]>coord[c1,2]-35) and (eu[2]<=adv[n,1]+30) and (coord[c1,1]+50=10) then begin
+                   for c2:=5 downto 1 do begin sound(700-100*c1);delay(2);nosound;end;
                    if pot then begin
                            melodie;
                            adv[care,5]:=0;
-                               end;
+                   end;
                    decndtrs:=0;
-                        end;
+            end;
+          end;
+        end;
+     end;
      winner:=true;
-     for n:=1 to nadv do if adv[n,5]<>0 then winner:=false;
+     for m:=1 to nadv do if adv[m,5]<>0 then winner:=false;
 end;
 procedure move(unde:sjds);
 var ad,i:byte;
@@ -1003,8 +1016,8 @@ begin
      cleardevice;
      assign(fil,'credits.txt');
      reset(fil);
-     sigla(30,10);sigla(525,10);
-     sigla(30,400);sigla(525,400);
+     {sigla(30,10);sigla(525,10);}
+     {sigla(30,400);sigla(525,400);}
      settextstyle(8,0,4);setcolor(green);
      for p:=1 to 4 do begin outtextxy(230-3*p,5+3*p,'CREDITS');end;
      setcolor(lightgreen);
@@ -1047,7 +1060,7 @@ begin
 end;
 begin
      randomize;
-     gd:=detect;initgraph(gd,gm,'');
+     gd:=9;gm:=2;initgraph(gd,gm,'');
      assign(fis,'rec.dat');
      initpic;
 while rmeniu<>5 do begin
@@ -1085,7 +1098,7 @@ while rmeniu<>5 do begin
                                                     bravo;
                                                     goto repifwin;
                                                     end;
-                  if winner then yes;
+                  {if winner then yes;}
                   if mylife<=0 then aipierdut;
                    end; {while #27}
        end;{1}
